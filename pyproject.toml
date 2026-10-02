@@ -1,0 +1,16 @@
+[build-system]
+requires=["setuptools>=61.0.0"]
+build-backend="setuptools.build_meta"
+
+[project]
+name="fendimo"
+version="0.0.0"
+description="Fendimo is a git inspired version control system with a funky twist"
+readme="README.md"
+requires-python=">=3.6"
+
+[project.scripts]
+run-tool="fendimo.cli:main"
+
+[tool.setuptools]
+packages={find={}}

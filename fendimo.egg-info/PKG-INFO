@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: fendimo
+Version: 0.0.0
+Summary: Fendimo is a git inspired version control system with a funky twist
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+
+<a>
+<image src='https://github.com/TherealArithmeticProgression/Fendimo-Version-Control-System-Inspired-by-Git/blob/main/image.png', alt='Fendimo Logo'>
+</a>
+<h1>Fendimo</h1>
