@@ -1,2 +1,2 @@
 [console_scripts]
-run-tool = fendimo.cli:main
+fendimo = fendimo.cli:main
