@@ -12,15 +12,20 @@ Git relies on SHA-1/SHA-1DC to maintain backward compatability, but researchers 
 
 <h2>...And how do you try this out?</h2>
 Use these simple steps:
+
 1. Clone the repository: (paste this command in your Git CMD)
-```git
+
+```bash
 git clone https://github.com/TherealArithmeticProgression/Fendimo-Version-Control-System-Inspired-by-Git
 ```
+
 2. Then change your working directory
-```git
+```bash
 cd Fendimo-Version-Control-System-Inspired-by-Git
 ```
+
 3. And run this command in the terminal
+
 ```python
 pip install -e .
 ```
@@ -28,6 +33,7 @@ pip install -e .
 
 4. Later, try out the various arguments mentioned in the ARGS.md file. 
 (Specimen code)
+
 ```python
 fendimo make 
 ```
