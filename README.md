@@ -9,5 +9,28 @@
 <h3> It defaults to SHA-256</h3>
 Git relies on SHA-1/SHA-1DC to maintain backward compatability, but researchers in the past have successfully demonstrated that SHA-1 can undergo [collision attacks](https://qodex.ai/blog/sha1-vs-sha256). Although Git is actively moving in the forward direction, Fendimo defaults to the SHA-2 (aka, SHA-256) algorithm (SHA-3 would be a better alternative, but SHA-256 is optimized for speed). 
 
+
+<h2>...And how do you try this out?</h2>
+Use these simple steps:
+1. Clone the repository: (paste this command in your Git CMD)
+```git
+git clone https://github.com/TherealArithmeticProgression/Fendimo-Version-Control-System-Inspired-by-Git
+```
+2. Then change your working directory
+```git
+cd Fendimo-Version-Control-System-Inspired-by-Git
+```
+3. And run this command in the terminal
+```python
+pip install -e .
+```
+(This will install the fendimo package locally)
+
+4. Later, try out the various arguments mentioned in the ARGS.md file. 
+(Specimen code)
+```python
+fendimo make 
+```
+
 <h2> Note </h2>
 This underlying code was inspired by the code @ [the ugit guide](https://www.leshenko.net/p/ugit/). Create a pullrequest for any suggested changes. Thanks!

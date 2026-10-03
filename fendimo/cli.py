@@ -10,10 +10,10 @@ def parse_args():
     required_commands=parser.add_subparsers(dest='required_commands')
     required_commands.required=True
     make_parser=required_commands.add_parser('make')
-    make_parser.set_default(func='make')
+    make_parser.set_defaults(func='make')
 
     codesave_parser=required_commands.add_parser('codesave')
-    codesave_parser.set_default(func='codesave')
+    codesave_parser.set_defaults(func='codesave')
     codesave_parser.add_argument('file')
     return parser.parse_args()
 
