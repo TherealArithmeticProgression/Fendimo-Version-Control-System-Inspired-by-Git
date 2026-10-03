@@ -1,6 +1,7 @@
 README.md
 pyproject.toml
 fendimo/cli.py
+fendimo/data.py
 fendimo.egg-info/PKG-INFO
 fendimo.egg-info/SOURCES.txt
 fendimo.egg-info/dependency_links.txt
