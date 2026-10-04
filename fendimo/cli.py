@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-from fendimo import data
+from fendimo import data, base
 
 
 def main():
@@ -14,14 +14,17 @@ def parse_args():
     required_commands.required=True
     make_parser=required_commands.add_parser('make')
     make_parser.set_defaults(func=make)
-
+    '''codesave is for producing the object's hash'''
     codesave_parser=required_commands.add_parser('codesave')
     codesave_parser.set_defaults(func=codesave)
     codesave_parser.add_argument('file')
-
+    '''show will display the info shared at an object's hash'''
     show_parser=required_commands.add_parser('show')
     show_parser.set_defaults(func=show)
     show_parser.add_argument('show')
+    '''conifer implements the functionality of write-tree'''
+    conifer_parser=required_commands.add_parser('conifer')
+    conifer_parser.set_defaults(func=conifer)
     return parser.parse_args()
 
 def make(args):
@@ -35,6 +38,9 @@ def codesave(args):
 def show(args):
     sys.stdout.flush()
     sys.stdout.buffer.write(data.get_obj(args.object, expected=None))
+
+def conifer(args):
+    base.conifer()
 
 
 

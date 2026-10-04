@@ -12,9 +12,10 @@ def init():
     os.makedirs(DIRECTORY)
     os.makedirs(f"{DIRECTORY}/objects")
 
-def hash_obj(data):
-    o_id=hashlib.sha256(data).hexdigest()
-    with open(f"{DIRECTORY}/objects/{o_id}", "wb+") as out:
+def hash_obj(data, type_='blubber'):
+    obj=type_.encode()+b'\x00'+data
+    o_id=hashlib.sha256(obj).hexdigest()
+    with open(f"{DIRECTORY}/objects/{o_id}", "wb") as out:
         out.write(data)
     return o_id
 
