@@ -34,6 +34,7 @@ def make(args):
 def codesave(args):
     with open(args.file, 'rb') as f:
         print(data.hash_obj(f.read()))
+        
 
 def show(args):
     sys.stdout.flush()

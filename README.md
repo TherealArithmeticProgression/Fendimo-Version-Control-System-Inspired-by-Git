@@ -33,7 +33,7 @@ A `.git` folder attached to the code contains several key subfolders, a few of t
 `hooks\` - vital automation scripts supported by git, 
 
 `logs\` - history of pointers, helping one mine for previous references
- 
+ .
 `modules\` - relevant for git submodules
  
 `worktrees\` - administrative info on secondary linked working directories
