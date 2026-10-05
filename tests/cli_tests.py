@@ -1,5 +1,5 @@
 import pytest
-from fendimo import cli
+from src.fendimo import cli
 import contextlib
 import io
 import sys

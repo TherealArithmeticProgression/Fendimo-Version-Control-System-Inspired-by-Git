@@ -1,7 +1,8 @@
 import argparse
 import os
 import sys
-from fendimo import data, base
+from src.fendimo import data
+from src.fendimo import base
 
 
 def main():
