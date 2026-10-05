@@ -1,14 +1,15 @@
 import os
-
+import pathlib as Path
 from fendimo import data
 
 '''default directory is the root directory
 Symbolic links are not permitted'''
 def conifer(directory='.'):
-    with os.scandir(directory) as this:
-        for entry in this:
-            full=f"{directory}/{entry.name}"
-            if entry.is_file(follow_symlinks=False):
-                print(full)
-            elif entry.is_dir(follow_symlinks=False):
+    for entry in Path(directory).iterdir():
+        if entry.is_file() and not entry.is_symlink():
+            print(entry)
+        elif entry.is_dir() and not entry.is_symlink():
+            conifer(entry)
+
+
                 
