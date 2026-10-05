@@ -20,7 +20,23 @@ Fendimo borrows heavily from this structure. If you were to scour Fendimo, you'd
 2. 
 
 <h3>The .git folder of fendimo</h3>
-Git tends to initialize a hidden, safe directory attached directly to the folder (ie, ```.git```) and so does fendimo (if you guessed ```.fend``` you're correct!). The folder con
+Git tends to initialize a hidden, safe directory attached directly to the folder (ie, `.git`) and so does fendimo (if you guessed `.fend` you're correct!). The folder con
+<h3>The databases inside a `.git` folder</h3>
+A `.git` folder attached to the code contains several key subfolders, a few of the prevalent ones include:
+
+`objects/` - The object database. Contains raw file contents, trees and commits compressed using the SHA format.
+
+`refs/` - Contains pointers to commit hashes, arrached i
+
+`info\` - contains global repository information, allowing us to store pivotal information about the repository (such as the files to ignore, stored in the .gitignore file)
+
+`hooks\` - vital automation scripts supported by git, 
+
+`logs\` - history of pointers, helping one mine for previous references
+ 
+`modules\` - relevant for git submodules
+ 
+`worktrees\` - administrative info on secondary linked working directories
 
 <h2>How is Fendimo any different from Git?</h2>
 
