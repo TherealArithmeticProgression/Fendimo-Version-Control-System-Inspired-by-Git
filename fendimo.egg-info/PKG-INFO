@@ -10,11 +10,29 @@ Description-Content-Type: text/markdown
 <image src='https://github.com/TherealArithmeticProgression/Fendimo-Version-Control-System-Inspired-by-Git/blob/main/image.png', alt='Fendimo Logo'>
 </a>
 
+<h2> What is Fendimo?</h2>
+As broadly described in the brief description, it's a version control system and it borrows heavily from Git.
+Fendimo is content-addressable (address made from the content itself), just like Git. 
+<h3>Objects in Fendimo</h3>
+Git maintains an active object database for storing various types of "objects" (There are 4 main objects): 
+
+1. Blobs (files)
+2. Tree (Directory Structure)
+3. Commits (Link to parent tree/commits + metadata about the committer)
+4. Annotated Tag (points to a commit and contains tagger notes about the commits)
+
+Fendimo borrows heavily from this structure. If you were to scour Fendimo, you'd find:
+
+1. Blubbers (main objects/files)
+2. 
+
+<h3>The .git folder of fendimo</h3>
+Git tends to initialize a hidden, safe directory attached directly to the folder (ie, ```.git```) and so does fendimo (if you guessed ```.fend``` you're correct!). The folder con
 
 <h2>How is Fendimo any different from Git?</h2>
 
 <h3> It defaults to SHA-256</h3>
-Git relies on SHA-1/SHA-1DC to maintain backward compatability, but researchers in the past have successfully demonstrated that SHA-1 can undergo [!collision attacks](https://qodex.ai/blog/sha1-vs-sha256). Although Git is actively moving in the forward direction, Fendimo defaults to the SHA-2 (aka, SHA-256) algorithm (SHA-3 would be a better alternative, but SHA-256 is optimized for speed). 
+Git relies on SHA-1/SHA-1DC to maintain backward compatability, but researchers in the past have successfully demonstrated that SHA-1 can undergo [collision attacks](https://qodex.ai/blog/sha1-vs-sha256). Although Git is actively moving in the forward direction, Fendimo defaults to the SHA-2 (aka, SHA-256) algorithm (SHA-3 would be a better alternative, but SHA-256 is optimized for speed). 
 
 
 <h2>...And how do you try this out?</h2>

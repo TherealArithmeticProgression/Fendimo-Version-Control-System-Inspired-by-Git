@@ -1,5 +1,6 @@
 README.md
 pyproject.toml
+fendimo/base.py
 fendimo/cli.py
 fendimo/data.py
 fendimo.egg-info/PKG-INFO

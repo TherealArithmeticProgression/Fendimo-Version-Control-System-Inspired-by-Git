@@ -39,6 +39,8 @@ def show(args):
     sys.stdout.flush()
     sys.stdout.buffer.write(data.get_obj(args.object, expected=None))
 
+'''
+Store current working directory to object database '''
 def conifer(args):
     base.conifer()
 
