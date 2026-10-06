@@ -39,7 +39,15 @@ def parse_args():
     '''get_log to get the logs of the each of the alter in code'''
     get_log_parser=required_commands.add_parser('get_log')
     get_log_parser.set_defaults(func=get_log)
-
+    get_log_parser.add_argument('o_id', nargs='?') #nargs is for expected number of arguments
+    '''checkout to point head to a previous alt'''
+    checkout_parser=required_commands.add_parser('checkout')
+    checkout_parser.set_defaults(func=checkout)
+    checkout_parser.add_argument('alt_id')
+    '''nameit parser to name an alt instead of using the hash value'''
+    nameit_parser=required_commands.add_parser('nameit')
+    nameit_parser.set_defaults(func=nameit)
+    nameit_parser.add_argument('alt_id', nargs='?')
     return parser.parse_args()
 
 def make(args):
@@ -66,13 +74,20 @@ def read_conifer(args):
 def alter(args):
     print(base.alter(args.message))
 
-def get_log():
-    alt_id=data.get_ha()
+def get_log(args):
+    alt_id=args.o_id or data.get_ref('HEAD') 
     while alt_id:
         alt=base.get_alter(o_id=alt_id)
         print(f"Alt {alt_id}")
         print(textwrap.indent(alt.message, "    ")) #four spaces for indents
         print('')
         alt_id=alt_id.ancestor
+
+def checkout(args):
+    base.checkout(args.alt_id)
+
+def nameit(args):
+    alt_id=args.alt_id or data.get_ref('HEAD')
+    base.nameit(name=args.name, alt_id=alt_id)
 
     

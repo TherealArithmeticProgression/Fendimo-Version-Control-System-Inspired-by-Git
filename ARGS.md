@@ -1,4 +1,9 @@
 # Glossary 
+## retained nomenclature (unchanged)
+---
+## checkout
+---
+## changes in nomenclature
 
 ## blobs
 blubber (completely equivalent)
@@ -17,4 +22,6 @@ conifer
 
 ## parent
 ancestor
+
+
 

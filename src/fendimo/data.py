@@ -33,13 +33,13 @@ def get_obj(o_id, expected='blubber'):
         assert type_==expected, f"Expected {expected}, got {type_} instead"
     return content
 
-def set_HEAD(o_id):
-    with open(f"{DIRECTORY}/HEAD", "w") as file:
-        file.write(o_id)
+def set_ref(ref, alt_id):
+    with open(f"{DIRECTORY}/{ref}", "w") as file:
+        file.write(alt_id)
 
 # .strip() will make sure there are no lingering white spaces/ tab spaces
-def get_ha():
-    if os.path.isfile(f"{DIRECTORY}/HEAD"):
-        with open(f"{DIRECTORY}/HEAD", "wb+") as file:
+def get_ref(ref):
+    if os.path.isfile(f"{DIRECTORY}/{ref}"):
+        with open(f"{DIRECTORY}/{ref}", "wb+") as file:
             file.read().strip()
 

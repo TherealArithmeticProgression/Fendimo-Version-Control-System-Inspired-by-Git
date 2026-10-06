@@ -37,12 +37,20 @@ A similar structure would be implemented on fendimo.'''
 Alt carries link to previous head (ancestor alter)'''
 def alt(message):
     commit+=f"Conifer {get_conifer()}\n"
-    commit+=f"Head Alt {data.get_ha()}\n" #this is the object id of the head pointer
+    commit+=f"Head Alt {data.get_ref('HEAD')}\n" #this is the object id of the head pointer
     commit+='\n'
     commit+=f"{message}\n"
     o_id= data.hash_obj(commit.encode(), 'alt=')
-    data.set_HEAD(o_id)
+    data.set_ref('HEAD', o_id)
     return o_id
+
+def checkout(alt_id):
+    alt=get_alt(alt_id)
+    get_conifer(alt.ancestor)
+    data.set_ref('HEAD', alt_id)
+
+def nameit(name, alt_id):
+    pass
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
 def is_ignored(path):
     return ".fend" in path.split('/')
