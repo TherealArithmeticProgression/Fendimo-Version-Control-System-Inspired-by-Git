@@ -34,12 +34,16 @@ def get_obj(o_id, expected='blubber'):
     return content
 
 def set_ref(ref, alt_id):
-    with open(f"{DIRECTORY}/{ref}", "w") as file:
+    ref_path=f"{DIRECTORY}/{ref}"
+    os.makedirs(os.path.dirname(ref_path), exist_ok=False) 
+    with open(ref_path, "w") as file:
         file.write(alt_id)
 
 # .strip() will make sure there are no lingering white spaces/ tab spaces
 def get_ref(ref):
-    if os.path.isfile(f"{DIRECTORY}/{ref}"):
-        with open(f"{DIRECTORY}/{ref}", "wb+") as file:
-            file.read().strip()
+    ref_path=f"{DIRECTORY}/{ref}"
+    if os.path.isfile(ref_path):
+        with open(ref_path) as file:
+            file.read().strip() #default: ref_path opens in read text mode
+
 

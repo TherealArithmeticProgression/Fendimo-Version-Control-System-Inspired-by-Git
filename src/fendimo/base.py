@@ -50,7 +50,8 @@ def checkout(alt_id):
     data.set_ref('HEAD', alt_id)
 
 def nameit(name, alt_id):
-    pass
+    data.get_ref(f'refs/tags/{name}', alt_id)
+    
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
 def is_ignored(path):
     return ".fend" in path.split('/')
