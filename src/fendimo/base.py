@@ -1,9 +1,12 @@
 '''
 Base file contains all vital components of fendimo (low-lying).
 '''
-
+'''NamedTuple can have elements accessed by using names instead of just indices.'''
 import os
 import pathlib as Path
+import itertools
+import operator
+from collections import namedtuple
 from src.fendimo import data
 from src.fendimo.exceptions import FendimoError, IncorrectInputError
 

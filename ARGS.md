@@ -1,16 +1,16 @@
 # Glossary 
 
-## Blobs
-Blubber (completely equivalent)
+## blobs
+blubber (completely equivalent)
 
-## Init
-Make 
+## init
+make 
 
 ## cat-file
-Show
+show
 
-## marq
-Commit
+## alter
+commit
 
 ## Tree
 conifer
