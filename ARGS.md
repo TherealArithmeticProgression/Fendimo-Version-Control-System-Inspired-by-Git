@@ -15,3 +15,6 @@ commit
 ## Tree
 conifer
 
+## parent
+ancestor
+

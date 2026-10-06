@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import textwrap
+
 from src.fendimo import data
 from src.fendimo import base
 
@@ -66,6 +67,12 @@ def alter(args):
     print(base.alter(args.message))
 
 def get_log():
-    base.get_log()
+    alt_id=data.get_ha()
+    while alt_id:
+        alt=base.get_alter(o_id=alt_id)
+        print(f"Alt {alt_id}")
+        print(textwrap.indent(alt.message, "    ")) #four spaces for indents
+        print('')
+        alt_id=alt_id.ancestor
 
     

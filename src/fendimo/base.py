@@ -8,11 +8,12 @@ import itertools
 import operator
 from collections import namedtuple
 from src.fendimo import data
-from src.fendimo.exceptions import FendimoError, IncorrectInputError
+from src.fendimo.exceptions import UnrecognizedArgumentError, IncorrectInputError, FendimoError
 
 '''default directory is the root directory
 Symbolic links are not permitted'''
- 
+alt=namedtuple('alt', ['conifer', 'ancestor', 'message'])
+
 def make_conifer(directory='.'):
     entries=[]
     for entry in Path(directory).iterdir():
@@ -32,13 +33,13 @@ def make_conifer(directory='.'):
 '''commits in git are connected and linked, the head points to the current commit. 
 A similar structure would be implemented on fendimo.'''
 '''
-Alter carries link to previous head (parent alter)'''
-def alter(message):
+Alt carries link to previous head (ancestor alter)'''
+def alt(message):
     commit+=f"Conifer {get_conifer()}\n"
-    commit+=f"Head Alter {data.get_ha()}\n" #this is the object id of the head pointer
+    commit+=f"Head Alt {data.get_ha()}\n" #this is the object id of the head pointer
     commit+='\n'
     commit+=f"{message}\n"
-    o_id= data.hash_obj(commit.encode(), 'alter')
+    o_id= data.hash_obj(commit.encode(), 'alt=')
     data.set_HEAD(o_id)
     return o_id
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
@@ -53,24 +54,39 @@ def iter_conifer(o_id):
         type_,o_id, name=entry.split('',2)
         yield type_, o_id, name
 
+
+def get_alt(o_id):
+    ancestor=None
+    alt=data.get_obj(o_id, 'alt').decode()
+    lines=iter(alt.splitlines())
+    for line in itertools.takewhile(operator.truth, lines):
+        key, value = line.split(' ', 1)
+        if key=='conifer':
+            conifer=value
+        elif key=='ancestor':
+            ancestor=value
+        else:
+            assert UnrecognizedArgumentError(f"Unknown field {key}")
+    message='\n'.join(lines)
+    return alt(conifer=conifer, ancestor=ancestor, message=message) #update to get new values
+
 def get_conifer(o_id, base_path=""):
     result={}
     for type_,oid,name in iter_conifer(o_id):
         if '/' in name or name in ('..','.'):
             raise IncorrectInputError(f"Incorrect name of file {name}")
-        path=base_path+name
-        
+        path=base_path+name 
         if type_=='blubber':
             result[path]=oid
         elif type_=='conifer':
             result.update(get_conifer(oid, base_path=f"{path}"))
         else:
-            raise IncorrectInputError(f"Object of type {type_} not recognized.")
+            raise (f"Object of type {type_} not recognized.")
     return result
 
-def read_conifer(tree_oid):
+def read_conifer(conifer_oid):
     _empty_current_directory()
-    for path, o_oid in get_conifer(o_id=o_oid, base_path='./').items():
+    for path, o_oid in get_conifer(o_id=conifer_oid, base_path='./').items():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'wb') as f:
             f.write(data.get_obj(o_oid))

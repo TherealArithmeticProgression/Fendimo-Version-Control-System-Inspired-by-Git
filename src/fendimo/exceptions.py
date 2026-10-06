@@ -4,4 +4,3 @@ class IncorrectInputError(Exception):
     pass 
 class UnrecognizedArgumentError(Exception):
     pass
-class 
