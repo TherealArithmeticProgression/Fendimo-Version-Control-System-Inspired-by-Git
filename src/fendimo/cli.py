@@ -3,8 +3,8 @@ import os
 import sys
 import textwrap
 
-from src.fendimo import data
-from src.fendimo import base
+from fendimo import data
+from fendimo import base
 
 
 def main():

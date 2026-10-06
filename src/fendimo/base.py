@@ -7,11 +7,12 @@ import pathlib as Path
 import itertools
 import operator
 from collections import namedtuple
-from src.fendimo import data
-from src.fendimo.exceptions import UnrecognizedArgumentError, IncorrectInputError, FendimoError
+from fendimo import data
+from fendimo.exceptions import UnrecognizedArgumentError, IncorrectInputError, FendimoError
 
 '''default directory is the root directory
 Symbolic links are not permitted'''
+
 alt=namedtuple('alt', ['conifer', 'ancestor', 'message'])
 
 def make_conifer(directory='.'):
