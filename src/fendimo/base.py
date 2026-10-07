@@ -112,6 +112,19 @@ def _empty_current_directory():
         except(FileNotFoundError, OSError):
             pass
 
+def iter_alts_and_ancestors(o_ids):
+    o_ids=set(o_ids)
+    visited=set()
+    while o_ids:
+        o_id=o_ids.pop()
+        if not o_id or o_id in visited:
+            continue
+        visited.add(o_id)
+        yield o_id
+        alt=get_alt(o_id)
+        o_ids.add(alt.ancestor)
+
+
 '''accessibility functions - START'''   
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
 def is_ignored(path):

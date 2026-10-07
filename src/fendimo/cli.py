@@ -50,6 +50,10 @@ def parse_args():
     nameit_parser=required_commands.add_parser('nameit')
     nameit_parser.set_defaults(func=nameit)
     nameit_parser.add_argument('alt_id', nargs='?', type=o_id, default='@')
+    '''C parser to see the alt history, and chronological build-up of project, akin to how gitk works'''
+    C_parser=required_commands.add_parser('C')
+    C_parser.set_defaults(func=C)
+    
     return parser.parse_args()
 
 def make(args):
@@ -90,5 +94,10 @@ def checkout(args):
 
 def nameit(args):
     base.nameit(args.name, args.o_id)
+
+def C(args):
+    for ref_name, ref in data.iter_refs():
+        print(ref_name, ": ", ref)
+
 
     
