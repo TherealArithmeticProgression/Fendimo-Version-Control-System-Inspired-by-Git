@@ -40,11 +40,16 @@ def set_ref(ref, alt_id):
         file.write(alt_id)
 
 # .strip() will make sure there are no lingering white spaces/ tab spaces
+
 def get_ref(ref):
     ref_path=f"{DIRECTORY}/{ref}"
+    value=None
     if os.path.isfile(ref_path):
         with open(ref_path) as file:
-            file.read().strip() #default: ref_path opens in read text mode
+            value= file.read().strip() #default: ref_path opens in read text mode
+    if value and value.startswith('ref:'):
+        return get_ref(value.split(':')[1].strip())
+    return value
 
 def iter_refs():
     refs=['@']

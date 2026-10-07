@@ -54,7 +54,12 @@ def parse_args():
     '''C parser to see the alt history, and chronological build-up of project, akin to how gitk works'''
     C_parser=required_commands.add_parser('C')
     C_parser.set_defaults(func=C)
-    
+    '''channel parser to switch between changes (offers the functionality of branching offered by git)'''
+    channel_parser = required_commands.add_parser('channel')
+    channel_parser.set_defaults(func=channel)
+    channel_parser.add_argument('name') # name of channel/branch
+    channel_parser.add_argument('start_point', default='@', type=o_id, nargs="?")
+
     return parser.parse_args()
 
 def make(args):
@@ -82,13 +87,12 @@ def alter(args):
     print(base.alter(args.message))
 
 def get_log(args):
-    alt_id=args.o_id  #retrieve only o_id from the namespace
-    while alt_id:
-        alt=base.get_alter(o_id=alt_id)
-        print(f"Alt {alt_id}")
+
+    for o_id in base.iter_alts_and_ancestors({args.o_id}) #retrieve only the relevant argument (o_id) from the argumentspace
+        alt=base.get_alter(o_id=o_id)
+        print(f"Alt {o_id}")
         print(textwrap.indent(alt.message, "    ")) #four spaces for indents
         print('')
-        alt_id=alt_id.ancestor
 
 def checkout(args):
     base.checkout(args.alt_id)
@@ -96,6 +100,10 @@ def checkout(args):
 def nameit(args):
     base.nameit(args.name, args.o_id)
 
+def channel(args):
+    base.make_channel(args.name, args.start_point)
+    print(f"Channel: {args.name} made at {args.start_point[:10]}") #no point in depicting the entire hash of 64 characters, only 10 first characters will be kept
+ 
 def C(args):
     dot='digraph alters{\n'
     o_ids=set()

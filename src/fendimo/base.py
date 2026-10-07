@@ -6,7 +6,7 @@ import os
 import pathlib as Path
 import itertools
 import operator
-from collections import namedtuple
+from collections import namedtuple, deque
 import string
 from fendimo import data
 from fendimo.exceptions import UnrecognizedArgumentError, IncorrectInputError, FendimoError
@@ -37,12 +37,15 @@ A similar structure would be implemented on fendimo.'''
 '''
 Alt carries link to previous head (ancestor alter)'''
 def alt(message):
+    
     commit+=f"Conifer {get_conifer()}\n"
-    commit+=f"Head Alt {data.get_ref('HEAD')}\n" #this is the object id of the head pointer
+    ancestor=data.get_ref('HEAD').value
+    if ancestor:
+        commit+=f"Head Alt {ancestor}\n" #this is the object id of the head pointer
     commit+='\n'
     commit+=f"{message}\n"
     o_id= data.hash_obj(commit.encode(), 'alt=')
-    data.set_ref('HEAD', o_id)
+    data.set_ref('HEAD', data.refValue(symbolic=False, value=o_id))
     return o_id
 
 def checkout(alt_id):
@@ -102,7 +105,7 @@ def _empty_current_directory():
     current_dir=Path.cwd()
     for path in sorted(current_dir.rglob("*"), key=lambda p:len(p.parts), reverse=True):
         try:
-            relativePath=path.relative_to(current_dir)
+            relativePath=Path.relative_to(current_dir)
         except ValueError:
             continue
         if is_ignored(str(relativePath)):
@@ -113,17 +116,19 @@ def _empty_current_directory():
             pass
 
 def iter_alts_and_ancestors(o_ids):
-    o_ids=set(o_ids)
+    o_ids=deque(o_ids)
     visited=set()
     while o_ids:
-        o_id=o_ids.pop()
+        o_id=o_ids.popleft()
         if not o_id or o_id in visited:
             continue
         visited.add(o_id)
         yield o_id
         alt=get_alt(o_id)
-        o_ids.add(alt.ancestor)
+        o_ids.appendleft(alt.ancestor)
 
+def make_channel(name, start_point):
+    pass
 
 '''accessibility functions - START'''   
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
