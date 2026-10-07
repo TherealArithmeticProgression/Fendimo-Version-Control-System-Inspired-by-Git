@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import sys
 import textwrap
 
@@ -96,8 +97,27 @@ def nameit(args):
     base.nameit(args.name, args.o_id)
 
 def C(args):
+    dot='digraph alters{\n'
+    o_ids=set()
     for ref_name, ref in data.iter_refs():
-        print(ref_name, ": ", ref)
+        dot+=f'"{ref_name}" [shape=note]\n'
+        dot+=f'"{ref_name}"->"{ref}"\n'
+        
+        o_ids.add(ref)
 
+    for o_id in base.iter_alts_and_ancestors(o_ids):
+        alt=base.get_alt(o_id)
+        dot+=f'"{o_id}" [shape=box style=filled label="{o_id[:10]}"]\n'
+        if alt.ancestor:
+            dot+=f'"{o_id}"->"{alt.ancestor}"\n'
+    dot+='}'
+    print(dot)
 
+    with subprocess.Popen(
+            ['dot', '-Tgtk', '/dev/stdin'],
+            stdin=subprocess.PIPE) as proc:
+        proc.communicate(dot.encode())
+
+                         
+                          
     
