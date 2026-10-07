@@ -15,12 +15,14 @@ def parse_args():
     parser=argparse.ArgumentParser()
     required_commands=parser.add_subparsers(dest='required_commands')
     required_commands.required=True
+    o_id=base.get_oid
     make_parser=required_commands.add_parser('make')
     make_parser.set_defaults(func=make)
+    
     '''codesave is for producing the object's hash'''
     codesave_parser=required_commands.add_parser('codesave')
     codesave_parser.set_defaults(func=codesave)
-    codesave_parser.add_argument('file')
+    codesave_parser.add_argument('file', type=o_id)
     '''show will display the info shared at an object's hash'''
     show_parser=required_commands.add_parser('show')
     show_parser.set_defaults(func=show)
@@ -31,7 +33,7 @@ def parse_args():
     '''read_conifer reads from a provided conifer'''
     read_conifer_parser=required_commands.add_parser('read_conifer')
     read_conifer_parser.set_defaults(func=read_conifer)
-    read_conifer_parser.add_argument('conifer')
+    read_conifer_parser.add_argument('conifer', type=o_id)
     '''alter is the equivalent of a git commit for fendimo'''
     alter_parser=required_commands.add_parser('alter')
     alter_parser.set_defaults(func=alter)
@@ -39,7 +41,7 @@ def parse_args():
     '''get_log to get the logs of the each of the alter in code'''
     get_log_parser=required_commands.add_parser('get_log')
     get_log_parser.set_defaults(func=get_log)
-    get_log_parser.add_argument('o_id', nargs='?') #nargs is for expected number of arguments
+    get_log_parser.add_argument('o_id', nargs='?', type=o_id, default='@') #nargs is for expected number of arguments
     '''checkout to point head to a previous alt'''
     checkout_parser=required_commands.add_parser('checkout')
     checkout_parser.set_defaults(func=checkout)
@@ -47,7 +49,7 @@ def parse_args():
     '''nameit parser to name an alt instead of using the hash value'''
     nameit_parser=required_commands.add_parser('nameit')
     nameit_parser.set_defaults(func=nameit)
-    nameit_parser.add_argument('alt_id', nargs='?')
+    nameit_parser.add_argument('alt_id', nargs='?', type=o_id, default='@')
     return parser.parse_args()
 
 def make(args):
@@ -75,7 +77,7 @@ def alter(args):
     print(base.alter(args.message))
 
 def get_log(args):
-    alt_id=args.o_id or data.get_ref('HEAD') 
+    alt_id=args.o_id  #retrieve only o_id from the namespace
     while alt_id:
         alt=base.get_alter(o_id=alt_id)
         print(f"Alt {alt_id}")
@@ -87,7 +89,6 @@ def checkout(args):
     base.checkout(args.alt_id)
 
 def nameit(args):
-    alt_id=args.alt_id or data.get_ref('HEAD')
-    base.nameit(name=args.name, alt_id=alt_id)
+    base.nameit(args.name, args.o_id)
 
     

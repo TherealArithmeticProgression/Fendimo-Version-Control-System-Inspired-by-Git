@@ -7,6 +7,7 @@ import pathlib as Path
 import itertools
 import operator
 from collections import namedtuple
+import string
 from fendimo import data
 from fendimo.exceptions import UnrecognizedArgumentError, IncorrectInputError, FendimoError
 
@@ -51,10 +52,6 @@ def checkout(alt_id):
 
 def nameit(name, alt_id):
     data.get_ref(f'refs/tags/{name}', alt_id)
-    
-# if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
-def is_ignored(path):
-    return ".fend" in path.split('/')
 
 def iter_conifer(o_id):
     if not o_id:
@@ -114,3 +111,27 @@ def _empty_current_directory():
             os.rmdir(path)
         except(FileNotFoundError, OSError):
             pass
+
+'''accessibility functions - START'''   
+# if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
+def is_ignored(path):
+    return ".fend" in path.split('/')
+# get object ID from the passed down name 
+def get_oid(name):
+    if name=='@' : name='HEAD'
+    
+    try_these=[f"{name}",
+                 f"refs/{name}",
+                 f"refs/heads/{name}",
+                 f"refs/tags/{name}"]
+    
+    for try_this in try_these:
+        if data.get_ref(try_this):
+            return data.get_ref(try_this)
+
+    is_hex=all(c in string.hexdigits for c in name)
+    if len(name)==64 and is_hex:
+        return name #case when we have an o_id in our hands already, then that o_id doesn't have an o_id, and we return it as-is.
+    else:
+        assert IncorrectInputError(f"Name {name} encountered is unknown.")
+'''accessibility functions - END'''
