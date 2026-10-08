@@ -16,6 +16,9 @@ make
 ## cat-file
 show
 
+## create_tag
+nameit
+
 ## alter
 commit
 
@@ -30,6 +33,9 @@ fendimoC
 
 ## channel
 branch
+
+## read-tree
+get_conifer
 
 
 

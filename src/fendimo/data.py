@@ -5,8 +5,11 @@ in the repository titled .fend, mimicking git's .git creation.
 """
 import hashlib
 import os
+from collections import namedtuple
 
 DIRECTORY=".fend"
+'''create a typedef struct in Python called ref_val which has the attributes symbolic/value.'''
+ref_val=namedtuple('Ref_Value',['symbolic','value'])
 
 def init():
     os.makedirs(DIRECTORY)
@@ -34,22 +37,30 @@ def get_obj(o_id, expected='blubber'):
     return content
 
 def set_ref(ref, alt_id):
+    if alt_id.symbolic:
+        raise ValueError
     ref_path=f"{DIRECTORY}/{ref}"
     os.makedirs(os.path.dirname(ref_path), exist_ok=False) 
     with open(ref_path, "w") as file:
-        file.write(alt_id)
+        file.write(alt_id.value)
 
 # .strip() will make sure there are no lingering white spaces/ tab spaces
 
 def get_ref(ref):
+    return _get_ref_internal(ref)[1]
+    
+def _get_ref_internal(ref):
     ref_path=f"{DIRECTORY}/{ref}"
     value=None
     if os.path.isfile(ref_path):
         with open(ref_path) as file:
             value= file.read().strip() #default: ref_path opens in read text mode
-    if value and value.startswith('ref:'):
-        return get_ref(value.split(':')[1].strip())
-    return value
+    symbolic=bool(value) and value.startswith('ref:')
+    if symbolic:
+        value=value.split(':', 1)[1].strip()
+        return _get_ref_internal(value)
+    return ref, ref_val(symbolic=False, value=value)
+
 
 def iter_refs():
     refs=['@']

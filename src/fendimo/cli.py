@@ -109,9 +109,9 @@ def C(args):
     o_ids=set()
     for ref_name, ref in data.iter_refs():
         dot+=f'"{ref_name}" [shape=note]\n'
-        dot+=f'"{ref_name}"->"{ref}"\n'
+        dot+=f'"{ref_name}"->"{ref.value}"\n'
         
-        o_ids.add(ref)
+        o_ids.add(ref.value)
 
     for o_id in base.iter_alts_and_ancestors(o_ids):
         alt=base.get_alt(o_id)

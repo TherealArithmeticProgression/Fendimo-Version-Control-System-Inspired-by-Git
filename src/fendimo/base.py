@@ -48,13 +48,15 @@ def alt(message):
     data.set_ref('HEAD', data.refValue(symbolic=False, value=o_id))
     return o_id
 
+
+
 def checkout(alt_id):
     alt=get_alt(alt_id)
-    get_conifer(alt.ancestor)
-    data.set_ref('HEAD', alt_id)
+    get_conifer(alt.conifer)
+    data.set_ref('HEAD',data.ref_val(symbolic=False,value=alt_id))
 
 def nameit(name, alt_id):
-    data.get_ref(f'refs/tags/{name}', alt_id)
+    data.set_ref(f'refs/tags/{name}', data.ref_val(symbolic=False, value=alt_id))
 
 def iter_conifer(o_id):
     if not o_id:
@@ -128,13 +130,14 @@ def iter_alts_and_ancestors(o_ids):
         o_ids.appendleft(alt.ancestor)
 
 def make_channel(name, start_point):
-    pass
+    data.set_ref(f"refs/heads/{name}", data.ref_val(symbolic=False, value=start_point))
 
 '''accessibility functions - START'''   
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
 def is_ignored(path):
     return ".fend" in path.split('/')
 # get object ID from the passed down name 
+
 def get_oid(name):
     if name=='@' : name='HEAD'
     
@@ -144,8 +147,8 @@ def get_oid(name):
                  f"refs/tags/{name}"]
     
     for try_this in try_these:
-        if data.get_ref(try_this):
-            return data.get_ref(try_this)
+        if data.get_ref(try_this, deref=False).value:
+            return data.get_ref(try_this).value
 
     is_hex=all(c in string.hexdigits for c in name)
     if len(name)==64 and is_hex:
