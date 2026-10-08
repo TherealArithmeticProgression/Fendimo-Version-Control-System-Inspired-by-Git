@@ -107,11 +107,11 @@ def channel(args):
 def C(args):
     dot='digraph alters{\n'
     o_ids=set()
-    for ref_name, ref in data.iter_refs():
+    for ref_name, ref in data.iter_refs(deref=False):
         dot+=f'"{ref_name}" [shape=note]\n'
         dot+=f'"{ref_name}"->"{ref.value}"\n'
-        
-        o_ids.add(ref.value)
+        if not ref.symbolic:
+            o_ids.add(ref.value)
 
     for o_id in base.iter_alts_and_ancestors(o_ids):
         alt=base.get_alt(o_id)
