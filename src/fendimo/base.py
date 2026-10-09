@@ -16,6 +16,18 @@ Symbolic links are not permitted'''
 
 alt=namedtuple('alt', ['conifer', 'ancestor', 'message'])
 
+def start():
+    data.start()
+    data.set_ref('HEAD', data.ref_val(symbolic=False, value='refs/heads/master'))
+
+def get_channel_name():
+    HEAD=data.get_ref('HEAD', deref=False)
+    if not HEAD.symbolic:
+        return None
+    if not HEAD.startswith('refs/heads'):
+        raise IncorrectInputError
+    return os.path.relpath(HEAD, 'refs/heads')
+
 def make_conifer(directory='.'):
     entries=[]
     for entry in Path(directory).iterdir():

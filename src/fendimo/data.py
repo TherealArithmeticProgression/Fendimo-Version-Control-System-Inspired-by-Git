@@ -11,7 +11,7 @@ DIRECTORY=".fend"
 '''create a typedef struct in Python called ref_val which has the attributes symbolic/value.'''
 ref_val=namedtuple('Ref_Value',['symbolic','value'])
 
-def init():
+def start():
     os.makedirs(DIRECTORY)
     os.makedirs(f"{DIRECTORY}/objects")
 
@@ -37,17 +37,22 @@ def get_obj(o_id, expected='blubber'):
     return content
 
 def set_ref(ref, alt_id, deref=True):
-    if alt_id.symbolic:
-        raise ValueError
+    
     ref=_get_ref_internal(ref, deref)[0]
+    if not deref.value:
+        assert ValueError
+    if deref.symbolic:
+        value=f'ref: {deref.value}'
+    else:
+        value=deref.value
     ref_path=f"{DIRECTORY}/{ref}"
     os.makedirs(os.path.dirname(ref_path), exist_ok=False) 
     with open(ref_path, "w") as file:
-        file.write(alt_id.value)
+        file.write(value)
 
 # .strip() will make sure there are no lingering white spaces/ tab spaces
 
-def get_ref(ref):
+def get_ref(ref, deref=True):
     return _get_ref_internal(ref, deref)[1]
     
 def _get_ref_internal(ref, deref):

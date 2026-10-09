@@ -59,11 +59,13 @@ def parse_args():
     channel_parser.set_defaults(func=channel)
     channel_parser.add_argument('name') # name of channel/branch
     channel_parser.add_argument('start_point', default='@', type=o_id, nargs="?")
-
+    ''' info parser prints pivotal information about the current working directory (related to the current channel)'''
+    info_parser=required_commands.add_parser('info')
+    info_parser.set_defaults(func=info)
     return parser.parse_args()
 
 def make(args):
-    data.init()
+    base.start()
     print(f"Initialized a fendimo directory at {os.getcwd()}/{data.DIRECTORY}")
 
 def codesave(args):
@@ -88,7 +90,7 @@ def alter(args):
 
 def get_log(args):
 
-    for o_id in base.iter_alts_and_ancestors({args.o_id}) #retrieve only the relevant argument (o_id) from the argumentspace
+    for o_id in base.iter_alts_and_ancestors({args.o_id}): #retrieve only the relevant argument (o_id) from the argumentspace
         alt=base.get_alter(o_id=o_id)
         print(f"Alt {o_id}")
         print(textwrap.indent(alt.message, "    ")) #four spaces for indents
@@ -104,6 +106,14 @@ def channel(args):
     base.make_channel(args.name, args.start_point)
     print(f"Channel: {args.name} made at {args.start_point[:10]}") #no point in depicting the entire hash of 64 characters, only 10 first characters will be kept
  
+def info():
+    HEAD=base.get_oid('@')
+    channel=base.get_channel_name()
+    if channel:
+        print(f"Currently on the channel {channel}.")
+    else:
+        print(f"Head sitting detached at the alt {HEAD[:10]}")
+        
 def C(args):
     dot='digraph alters{\n'
     o_ids=set()
