@@ -6,6 +6,8 @@
 ## @
 
 ## master
+
+## reset
 ---
 ## changes in nomenclature
 
@@ -17,6 +19,9 @@ make
 
 ## cat-file
 show
+
+## show
+show-alt
 
 ## create_tag
 nameit

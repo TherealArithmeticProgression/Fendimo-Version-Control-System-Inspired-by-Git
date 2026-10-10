@@ -1,4 +1,5 @@
 .venv/
 *.egg-info/
 src/fendimo/fendimo.egg-info
-fendimo.egg-info
+fendimo.egg-info/
+test_yourself/

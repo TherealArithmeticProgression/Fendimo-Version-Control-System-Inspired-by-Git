@@ -6,6 +6,7 @@ import textwrap
 
 from fendimo import data
 from fendimo import base
+from fendimo import diff
 
 
 def main():
@@ -57,11 +58,20 @@ def parse_args():
     '''channel parser to switch between changes (offers the functionality of branching offered by git)'''
     channel_parser = required_commands.add_parser('channel')
     channel_parser.set_defaults(func=channel)
-    channel_parser.add_argument('name') # name of channel/branch
+    channel_parser.add_argument('name', nargs='?') # name of channel/branch
     channel_parser.add_argument('start_point', default='@', type=o_id, nargs="?")
     ''' info parser prints pivotal information about the current working directory (related to the current channel)'''
     info_parser=required_commands.add_parser('info')
     info_parser.set_defaults(func=info)
+    '''reset parser to set master and head on the same alt (any prev alts)'''
+    reset_parser=required_commands.add_parser('reset')
+    reset_parser.set_defaults(func=reset)
+    reset_parser.add_argument('alt', type=o_id)
+    '''show-alt parser to show only the alt's attached message'''
+    show_alt_parser=required_commands.add_parser('show-alt')
+    show_alt_parser.set_defaults(func=show_alt)
+    show_alt_parser.add_argument('alt_id', nargs='?', default='@', type=o_id)
+    
     return parser.parse_args()
 
 def make(args):
@@ -72,7 +82,6 @@ def codesave(args):
     with open(args.file, 'rb') as f:
         print(data.hash_obj(f.read()))
         
-
 def show(args):
     sys.stdout.flush()
     sys.stdout.buffer.write(data.get_obj(args.object, expected=None))
@@ -88,13 +97,13 @@ def read_conifer(args):
 def alter(args):
     print(base.alter(args.message))
 
+##2.
 def get_log(args):
-
+    refs={}
+    for ref_name, ref in data.iter_refs():
+        refs.setdefault(ref.value, []).append(ref_name)
     for o_id in base.iter_alts_and_ancestors({args.o_id}): #retrieve only the relevant argument (o_id) from the argumentspace
-        alt=base.get_alter(o_id=o_id)
-        print(f"Alt {o_id}")
-        print(textwrap.indent(alt.message, "    ")) #four spaces for indents
-        print('')
+        alt=base.get_alter(o_id=o_id)      
 
 def checkout(args):
     base.checkout(args.alt_id)
@@ -102,10 +111,17 @@ def checkout(args):
 def nameit(args):
     base.nameit(args.name, args.o_id)
 
+##3.
 def channel(args):
-    base.make_channel(args.name, args.start_point)
-    print(f"Channel: {args.name} made at {args.start_point[:10]}") #no point in depicting the entire hash of 64 characters, only 10 first characters will be kept
- 
+    if not args.name:
+        current=base.get_channel_name()
+        for channel in base.iter_channels():
+            prefix="*" if channel==current else " "
+            print(f"{prefix} {channel}")
+    else:
+        base.make_channel(args.name, args.start_point)
+        print(f"A channel {args.name} was created starting at the alt {args.start_point[:10]}")
+
 def info():
     HEAD=base.get_oid('@')
     channel=base.get_channel_name()
@@ -114,6 +130,9 @@ def info():
     else:
         print(f"Head sitting detached at the alt {HEAD[:10]}")
         
+def reset(args.alt):
+    base.reset(args.alt)
+
 def C(args):
     dot='digraph alters{\n'
     o_ids=set()
@@ -136,6 +155,32 @@ def C(args):
             stdin=subprocess.PIPE) as proc:
         proc.communicate(dot.encode())
 
-                         
-                          
-    
+def show_alt(args):
+    if not args.alt_id:
+        return 
+    alt=base.get_alt(args.alt_id)
+    ancestor=None
+    if alt.ancestor:
+        ancestor=base.get_conifer(alt.ancestor)
+    _alt_printer(args.alt_id, alt)
+    res=diff.diff_conf(base.get_conifer(args.alt_id), base.get_conifer())
+
+
+def show_alt(args):
+    if not args.alt_id:
+        return
+    alt=base.get_alt(args.alt_id)
+    ancestor=None
+    if alt.ancestor:
+        ancestor=base.get_conifer(alt.ancestor).conifer
+    _alt_printer(args.alt_id, alt)
+    res=diff.diff_conf(base.get_conifer(ancestor), base.get_conifer(alt.conifer))
+    sys.stdout.flush()
+    sys.stdout.buffer.write(res)
+
+def _alt_printer(o_id, alt, refs=None)  #defaults to None to maintain compatibility with show_alt function                     
+    refs_str=f'({", ".join(refs[o_id])})' if o_id in refs else ''
+    print(f"Alt {o_id} {refs_str}\n")
+    print(textwrap.indent(alt.message, "    ")) #four spaces for indents
+    print('')                     
+  

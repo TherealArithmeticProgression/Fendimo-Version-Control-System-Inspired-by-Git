@@ -68,13 +68,15 @@ def _get_ref_internal(ref, deref):
             return _get_ref_internal(value, deref=True)
     return ref, ref_val(symbolic=symbolic, value=value)
 
-
-def iter_refs(deref=True):
+##3.
+def iter_refs(prefix="",deref=True):
     refs=['@']
     for root, _, filenames in os.walk(f'{DIRECTORY}/refs/'):
         root=os.path.relpath(root, DIRECTORY)
         refs.extend(f"{root}/{name}" for name in filenames)
 
     for refname in refs:
+        if not refname.startswith(prefix):
+            continue
         yield refname, get_ref(refname, deref=deref)
 

@@ -17,12 +17,15 @@ Git maintains an active object database for storing various types of "objects" (
 Fendimo borrows heavily from this structure. If you were to scour Fendimo, you'd find:
 
 1. Blubbers (main objects/files)
-2. 
+2. Channels (branches)
+3. A conifer (The tree)
+4. nameit names (named tags, the tagger note part is under construction)
 
 <h3>The .git folder of fendimo</h3>
-Git tends to initialize a hidden, safe directory attached directly to the folder (ie, `.git`) and so does fendimo (if you guessed `.fend` you're correct!). The folder con
-<h3>The databases inside a `.git` folder</h3>
-A `.git` folder attached to the code contains several key subfolders, a few of the prevalent ones include:
+Git tends to initialize a hidden, safe directory attached directly to the folder (ie, `git/`) and so does fendimo (if you guessed `fend/` you're correct!). The folder content has been deliberated upon, and the files are mentioned in the upcoming sections.
+
+<h3>The databases inside a .git folder</h3>
+A `git/` folder attached to the code contains several key subfolders, a few of the prevalent ones include:
 
 `objects/` - The object database. Contains raw file contents, trees and commits compressed using the SHA format.
 
