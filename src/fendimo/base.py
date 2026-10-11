@@ -9,12 +9,13 @@ import operator
 from collections import namedtuple, deque
 import string
 from fendimo import data
+from fendimo import diff
 from fendimo.exceptions import UnrecognizedArgumentError, IncorrectInputError, FendimoError
 
 '''default directory is the root directory
 Symbolic links are not permitted'''
 
-alt=namedtuple('alt', ['conifer', 'ancestor', 'message'])
+alt=namedtuple('alt', ['conifer', 'ancestors', 'message'])
 
 def start():
     data.start()
@@ -90,18 +91,21 @@ A similar structure would be implemented on fendimo.'''
 Alt carries link to previous head (ancestor alter)'''
 def alt(message):
     
-    commit+=f"Conifer {get_conifer()}\n"
-    ancestor=data.get_ref('HEAD').value
-    if ancestor:
-        commit+=f"Head Alt {ancestor}\n" #this is the object id of the head pointer
-    commit+='\n'
-    commit+=f"{message}\n"
-    o_id= data.hash_obj(commit.encode(), 'alt=')
+    ALT+=f"Conifer {get_conifer()}\n"
+    HEAD=data.get_ref('HEAD').value
+    if HEAD:
+        ALT+=f"Head Alt {HEAD}\n" #this is the object id of the head pointer
+    MERGE_HEAD=data.get_ref('MERGE_HEAD').value
+    if MERGE_HEAD:
+        ALT+=f'ancestor {MERGE_HEAD}\n'
+    ALT+='\n'
+    ALT+=f"{message}\n"
+    o_id= data.hash_obj(ALT.encode(), 'alt=')
     data.set_ref('HEAD', data.refValue(symbolic=False, value=o_id))
     return o_id
 
 def get_alt(o_id):
-    ancestor=None
+    ancestors=[]
     alt=data.get_obj(o_id, 'alt').decode()
     lines=iter(alt.splitlines())
     for line in itertools.takewhile(operator.truth, lines):
@@ -109,13 +113,23 @@ def get_alt(o_id):
         if key=='conifer':
             conifer=value
         elif key=='ancestor':
-            ancestor=value
+            ancestors.append(value)
         else:
             assert UnrecognizedArgumentError(f"Unknown field {key}")
     message='\n'.join(lines)
-    return alt(conifer=conifer, ancestor=ancestor, message=message) #update to get new values
+    return alt(conifer=conifer, ancestors=ancestors, message=message) #update to get new values
 
-
+##2.
+def get_pwc():
+    result={}
+    for root,_, filenames in os.walk("."):
+        for filename in filenames:
+            path=os.path.relpath(f"{root}/{filename}")
+            if not os.path.isfile(path) or is_ignored(path):
+                continue
+            with open(path, "rb") as file:
+                result[path]=data.hash_obj(file.read())
+    return result 
 
 def checkout(name):
     alt_id=get_oid(name)
@@ -143,9 +157,32 @@ def iter_alts_and_ancestors(o_ids):
         visited.add(o_id)
         yield o_id
         alt=get_alt(o_id)
-        o_ids.appendleft(alt.ancestor)
+        o_ids.extendleft(alt.ancestors[:1])
+        o_ids.extend(alt.ancestors[1:])
 
+##3.
+def merge(other_id):
+    HEAD=data.get_ref('HEAD').value
+    if not HEAD:
+        raise ValueError
+    a_head=get_alt('HEAD')
+    a_other=get_alt(other_id)
+    if not a_other:
+        raise IncorrectInputError(f"No alt with the ID {other_id[:10]}... recognized.")
+    data.set_ref('MERGE_HEAD', data.ref_val(symbolic=True, value=other_id))
+    read_conifer(a_head.conifer, a_other.conifer)
+    print("Merged to present working conifer \n Make an alt to proceed safely.")
 
+# chronology lost in set, but retained in generator-type output of
+# iter_alts_and_ancestors({alt_id2}) 
+# and it makes sure the first common ancestor is returned
+##2.
+def merge_base(alt_id1, alt_id2):
+    ancestors1=set(iter_alts_and_ancestors({alt_id1}))
+    for o_id in iter_alts_and_ancestors({alt_id2}):
+        if o_id in ancestors1:
+            return o_id
+        
 '''accessibility functions - START'''   
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
 def is_ignored(path):

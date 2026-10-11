@@ -63,6 +63,7 @@ def parse_args():
     ''' info parser prints pivotal information about the current working directory (related to the current channel)'''
     info_parser=required_commands.add_parser('info')
     info_parser.set_defaults(func=info)
+    info_parser.add_argument('alt_id', type=o_id)
     '''reset parser to set master and head on the same alt (any prev alts)'''
     reset_parser=required_commands.add_parser('reset')
     reset_parser.set_defaults(func=reset)
@@ -71,7 +72,20 @@ def parse_args():
     show_alt_parser=required_commands.add_parser('show-alt')
     show_alt_parser.set_defaults(func=show_alt)
     show_alt_parser.add_argument('alt_id', nargs='?', default='@', type=o_id)
-    
+    '''changed parser to show the difference between the repository of last commit and current working directory'''
+    changed_parser=required_commands.add_parser('changed')
+    changed_parser.set_defaults(func=_changed)
+    changed_parser.add_argument('alt', nargs='?', default='@')
+    '''merge parser to merge two or more channels together'''
+    merge_parser=required_commands.add_parser('merge')
+    merge_parser.set_defaults(func=merge)
+    merge_parser.add_argument("alt_id", type=o_id)
+    '''merge_base parser to find the first common ancestor of two distinct channels'''
+    merge_base_parser=required_commands.add_parser('merge_base')
+    merge_base_parser.set_defaults(func=merge_base)
+    merge_base_parser.add_argument('alt1', type=o_id)
+    merge_base_parser.add_argument('alt2', type=o_id)
+
     return parser.parse_args()
 
 def make(args):
@@ -122,15 +136,13 @@ def channel(args):
         base.make_channel(args.name, args.start_point)
         print(f"A channel {args.name} was created starting at the alt {args.start_point[:10]}")
 
-def info():
-    HEAD=base.get_oid('@')
-    channel=base.get_channel_name()
-    if channel:
-        print(f"Currently on the channel {channel}.")
-    else:
-        print(f"Head sitting detached at the alt {HEAD[:10]}")
-        
-def reset(args.alt):
+def merge(args):
+    base.merge(args.alt_id)
+
+def merge_base(args):
+    print(base.merge_base(args.alt1, args.alt2))
+
+def reset(args):
     base.reset(args.alt)
 
 def C(args):
@@ -145,8 +157,9 @@ def C(args):
     for o_id in base.iter_alts_and_ancestors(o_ids):
         alt=base.get_alt(o_id)
         dot+=f'"{o_id}" [shape=box style=filled label="{o_id[:10]}"]\n'
-        if alt.ancestor:
-            dot+=f'"{o_id}"->"{alt.ancestor}"\n'
+        if alt.ancestors:
+            for ancestor in alt.ancestors:
+                dot+=f'"{o_id}"->"{ancestor}"\n'
     dot+='}'
     print(dot)
 
@@ -155,30 +168,41 @@ def C(args):
             stdin=subprocess.PIPE) as proc:
         proc.communicate(dot.encode())
 
-def show_alt(args):
-    if not args.alt_id:
-        return 
-    alt=base.get_alt(args.alt_id)
-    ancestor=None
-    if alt.ancestor:
-        ancestor=base.get_conifer(alt.ancestor)
-    _alt_printer(args.alt_id, alt)
-    res=diff.diff_conf(base.get_conifer(args.alt_id), base.get_conifer())
-
-
-def show_alt(args):
+##3.
+def info(args):
     if not args.alt_id:
         return
     alt=base.get_alt(args.alt_id)
     ancestor=None
-    if alt.ancestor:
-        ancestor=base.get_conifer(alt.ancestor).conifer
-    _alt_printer(args.alt_id, alt)
-    res=diff.diff_conf(base.get_conifer(ancestor), base.get_conifer(alt.conifer))
+    if alt.ancestors:
+        ancestor=base.get_alt(alt.ancestors[0]).conifer
+    show_alt(args.alt_id, alt)
+    result=diff.diff_conf(base.get_conifer(ancestor), base.get_conifer(alt.conifer))
     sys.stdout.flush()
-    sys.stdout.buffer.write(res)
+    sys.stdout.write(result)
 
-def _alt_printer(o_id, alt, refs=None)  #defaults to None to maintain compatibility with show_alt function                     
+def show_alt(args):
+    HEAD=base.get_oid('@')
+    channel=base.get_channel_name()
+    if channel:
+        print(f"On channel {channel}")
+    else:
+        print(f"Head detached at {HEAD[:10]}")
+    MERGE_HEAD=base.get_alt('HEAD').value
+    if MERGE_HEAD:
+        print(f"Merging with {MERGE_HEAD[:10]}")
+    print('\n Changes to be committed:\n')
+    HEAD_tree=HEAD and base.get_alt(HEAD).name
+    for path, action in diff.iter_changed_files(base.get_tree(HEAD_tree), base.get_pwc()):
+        print(f"{action:>12}:{path}")
+
+def _changed(args):
+    conifer=args.alt and base.get_alt(args.alt).conifer
+    result=diff.diff_conf(base.get_conifer(conifer), base.get_pwc())
+    sys.stdout.flush()
+    sys.stdout.write(result)
+
+def _alt_printer(o_id, alt, refs=None):  #defaults to None to maintain compatibility with show_alt function                     
     refs_str=f'({", ".join(refs[o_id])})' if o_id in refs else ''
     print(f"Alt {o_id} {refs_str}\n")
     print(textwrap.indent(alt.message, "    ")) #four spaces for indents

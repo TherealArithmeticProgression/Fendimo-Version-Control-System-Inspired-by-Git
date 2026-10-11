@@ -11,23 +11,32 @@
 ---
 ## changes in nomenclature
 
+## alter
+commit
+
 ## blobs
 blubber (completely equivalent)
-
-## init
-make 
 
 ## cat-file
 show
 
-## show
-show-alt
-
 ## create_tag
 nameit
 
-## alter
-commit
+## channel
+branch
+
+## diff
+changed 
+
+## init
+make 
+
+## show
+show-alt
+
+## status
+info
 
 ## Tree
 conifer
@@ -35,14 +44,12 @@ conifer
 ## parent
 ancestor
 
-## gitk
-fendimoC
-
-## channel
-branch
+## git k
+fendimo C
 
 ## read-tree
 get_conifer
 
-
+## pwc
+(present working conifer)
 

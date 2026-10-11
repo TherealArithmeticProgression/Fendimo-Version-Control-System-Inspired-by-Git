@@ -1,4 +1,7 @@
+import subprocess
 from collections import defaultdict
+from tempfile import NamedTemporaryFile as temp
+from fendimo import data
 
 def comp_conifers(*conifers):
     entries=defaultdict(lambda:[None]*len(conifers))
@@ -8,9 +11,62 @@ def comp_conifers(*conifers):
     for path, o_ids in entries.items():
         yield (path, *o_ids)
 
-def diff_conf(c_from, c_to):
-    output=''
+##2.
+def iter_changed_files(c_from, c_to):
     for path, o_from, o_to in comp_conifers(c_from, c_to):
         if o_from!=o_to:
-            output+=f'Changed: {path}\n'
+            action=('New file' if not o_from else
+                    'Deleted' if not o_to else
+                    'Modified')
+        yield path, action        
+
+def diff_conf(c_from, c_to):
+    output=b''
+    for path, o_from, o_to in comp_conifers(c_from, c_to):
+        if o_from!=o_to:
+            output+=diff_blubber(o_from, o_to, path)
     return output
+
+
+def diff_blubber(o_from, o_to, path='blubber'):
+    with temp() as f_from, temp() as f_to:
+        for o_id, f in ((o_from, f_from),(o_to,f_to)):
+            if o_id:
+                f.write(o_id)
+                f.flush()
+        # function will stop executing until the process communicates the required output
+        # to the function, then the function will return
+        # the output obtained.
+        # without "unified" mode the +/- signs won't be visible
+        # and you can get the clunky coordinates instead
+        # user will see the {path} instead of a temporary file when you do a/path / b/path
+        # with PIPE python catches the output
+        with subprocess.Popen(['diff','--unified','--show-c-function',
+                               '--label', f'a/{path}', f_from.name,
+                               '--label', f'b/{path}', f_to.name],stdout=subprocess.PIPE) as proc:
+            output,_=proc.communicate()
+        # this stays _, because it is responsible for catching stderrors, 
+        # which will be empty unless we write stderr=subprocess.PIPE as well.
+    return output
+
+# MERGE TYPE FUNCTIONS
+
+##2.
+def merge_conifs(c_head, c_other):
+    merged={}
+    for path, o_head, o_ther in comp_conifers(c_head, c_other):
+        merged[path]=merge_blubbers(o_head=o_head, o_ther=o_ther)
+    return merged
+
+def merge_blubbers(o_head, o_ther):
+    with temp() as f_head, temp() as f_other:
+        for o_id, f in ((o_head, f_head), (o_ther, f_other)):
+            if o_id:
+                f.write(data.get_obj(o_id))
+                f.flush()
+
+    with subprocess.Popen(['diff', '-DHEAD', f_head.name, f_other.name], stdout=subprocess.PIPE) as proc:
+        output, _ = proc.communicate()
+
+    return output
+
