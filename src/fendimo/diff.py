@@ -58,15 +58,20 @@ def merge_conifs(c_head, c_other):
         merged[path]=merge_blubbers(o_head=o_head, o_ther=o_ther)
     return merged
 
-def merge_blubbers(o_head, o_ther):
-    with temp() as f_head, temp() as f_other:
-        for o_id, f in ((o_head, f_head), (o_ther, f_other)):
+def merge_blubbers(o_base, o_head, o_ther):
+    with temp() as f_base, temp() as f_head, temp() as f_ther:
+        for o_id, f in ((o_base, f_base),(o_head,f_head) (o_ther, f_ther)):
             if o_id:
                 f.write(data.get_obj(o_id))
                 f.flush()
 
-    with subprocess.Popen(['diff', '-DHEAD', f_head.name, f_other.name], stdout=subprocess.PIPE) as proc:
+    # diff3 can give th return codes 0/1/2/... 0=merge with no conflicts, 1=merge with conflicts
+    # code=2... ->some bad error happened. we need to avoid this output.
+    with subprocess.Popen(['diff3', '-m',"-L",'HEAD',f_head.name, '-L','BASE', f_base.name, '-L', 'MERGE_HEAD', f_ther.name], stdout=subprocess.PIPE) as proc:
         output, _ = proc.communicate()
+        if proc.returncode not in (0,1):
+            raise SystemError
+        
 
     return output
 

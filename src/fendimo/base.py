@@ -77,6 +77,14 @@ def read_conifer(conifer_oid):
         with open(path, 'wb') as f:
             f.write(data.get_obj(o_oid))
 
+##3.
+def read_merged_conifers(c_base, c_head, c_other):
+    _empty_current_directory()
+    for path, blubber in diff.merge_conifs(get_conifer(c_base), get_conifer(c_head), get_conifer(c_other)).items():
+        os.makedirs(f"{os.path.dirname(path)}", exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(blubber)
+
 def iter_conifer(o_id):
     if not o_id:
         return
