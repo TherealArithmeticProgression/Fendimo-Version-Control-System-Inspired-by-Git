@@ -168,16 +168,23 @@ def iter_alts_and_ancestors(o_ids):
         o_ids.extendleft(alt.ancestors[:1])
         o_ids.extend(alt.ancestors[1:])
 
-##3.
+##5.
 def merge(other_id):
     HEAD=data.get_ref('HEAD').value
     if not HEAD:
         raise ValueError
-    a_head=get_alt('HEAD')
+    merge_base=merge_base(other_id, HEAD)
     a_other=get_alt(other_id)
     if not a_other:
         raise IncorrectInputError(f"No alt with the ID {other_id[:10]}... recognized.")
-    data.set_ref('MERGE_HEAD', data.ref_val(symbolic=True, value=other_id))
+    if merge_base==HEAD:
+        read_conifer(a_other.conifer)
+        data.set_ref('MERGE_HEAD', data.ref_val(symbolic=False, value=other_id))
+        print("Fast-forward merge occured.")
+        return 
+    data.set_ref('MERGE_HEAD', data.ref_val(symbolic=False, value=other_id))
+    a_base=get_alt(merge_base)
+    a_head=get_alt(HEAD)
     read_conifer(a_head.conifer, a_other.conifer)
     print("Merged to present working conifer \n Make an alt to proceed safely.")
 

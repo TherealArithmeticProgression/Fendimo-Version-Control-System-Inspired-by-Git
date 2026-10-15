@@ -4,9 +4,8 @@ import subprocess
 import sys
 import textwrap
 
-from fendimo import data
-from fendimo import base
-from fendimo import diff
+from fendimo import data, base, diff, remote
+
 
 
 def main():
@@ -85,7 +84,10 @@ def parse_args():
     merge_base_parser.set_defaults(func=merge_base)
     merge_base_parser.add_argument('alt1', type=o_id)
     merge_base_parser.add_argument('alt2', type=o_id)
-
+    '''go_get parser to fetch a remote directory to implementing fetching functionalities'''
+    go_get_parser=required_commands.add_parser('go-get')
+    go_get_parser.set_defaults(func=go_get)
+    go_get_parser.add_argument('remote_dir')
     return parser.parse_args()
 
 def make(args):
@@ -207,4 +209,6 @@ def _alt_printer(o_id, alt, refs=None):  #defaults to None to maintain compatibi
     print(f"Alt {o_id} {refs_str}\n")
     print(textwrap.indent(alt.message, "    ")) #four spaces for indents
     print('')                     
-  
+
+def go_get(args):
+    remote.go_get(args.remote_dir)

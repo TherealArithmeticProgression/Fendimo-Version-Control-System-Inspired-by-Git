@@ -3,11 +3,22 @@ Module-level doc string
 This file (data.py) will initialize a folder 
 in the repository titled .fend, mimicking git's .git creation.
 """
+from contextlib import contextmanager
 import hashlib
 import os
 from collections import namedtuple
 
-DIRECTORY=".fend"
+DIRECTORY=None
+@contextmanager
+def change_fend_dir(new_dir):
+    # __enter___
+    global DIRECTORY # mandatory to declare it as global if we're assigning it a new value inside the function
+                    # otherwise, python will think DIRECTORY is a local variable.
+    old_dir=DIRECTORY
+    DIRECTORY=f'{new_dir}/.fend'
+    yield
+    # __exit___ (cause you saw yield, now leave)
+    DIRECTORY=old_dir
 '''create a typedef struct in Python called ref_val which has the attributes symbolic/value.'''
 ref_val=namedtuple('Ref_Value',['symbolic','value'])
 
