@@ -6,6 +6,7 @@ in the repository titled .fend, mimicking git's .git creation.
 from contextlib import contextmanager
 import hashlib
 import os
+import shutil #shutil is used for directory management tasks, such as moving/deleting/copying
 from collections import namedtuple
 
 DIRECTORY=None
@@ -96,3 +97,12 @@ def iter_refs(prefix="",deref=True):
             continue
         yield refname, get_ref(refname, deref=deref)
 
+def obj_exists(o_id):
+    return os.path.isfile(f"{DIRECTORY}/objects/{o_id}")
+
+def fetch_obj_if_missing(o_id, remote_dir):
+    if obj_exists(o_id=o_id):
+        return 
+    remote_dir+='/.fend'
+    shutil.copy(f"{remote_dir}/objects/{o_id}", f"{DIRECTORY}/objects/{o_id}")
+ 

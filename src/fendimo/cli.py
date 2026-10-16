@@ -7,7 +7,6 @@ import textwrap
 from fendimo import data, base, diff, remote
 
 
-
 def main():
     arg_parser=parse_args()
     arg_parser.func(arg_parser)
