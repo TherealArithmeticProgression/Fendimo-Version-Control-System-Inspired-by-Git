@@ -87,6 +87,11 @@ def parse_args():
     go_get_parser=required_commands.add_parser('go-get')
     go_get_parser.set_defaults(func=go_get)
     go_get_parser.add_argument('remote_dir')
+    '''add parser helps in adding staging functionalities to the vcs'''
+    add_parser=required_commands.add_parser('add')
+    add_parser.set_defaults(func=add)
+    add_parser.add_argument('files', nargs='+')
+
     return parser.parse_args()
 
 def make(args):
@@ -211,3 +216,6 @@ def _alt_printer(o_id, alt, refs=None):  #defaults to None to maintain compatibi
 
 def go_get(args):
     remote.go_get(args.remote_dir)
+
+def add(args):
+    base.add(args.files)

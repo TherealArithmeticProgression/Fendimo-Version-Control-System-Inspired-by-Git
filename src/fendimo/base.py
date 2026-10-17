@@ -197,7 +197,37 @@ def merge_base(alt_id1, alt_id2):
     for o_id in iter_alts_and_ancestors({alt_id2}):
         if o_id in ancestors1:
             return o_id
-        
+
+
+def add(file_names):
+    '''
+    ## add file and corresponding object id in the index
+
+    Accepts a parameter ```filenames``` to be added in the index.
+
+    '''
+    def add_file(file_name):
+        with data.get_idx() as idx:
+                file=os.path.relpath(file_name)
+                with open(file, 'w') as f:
+                    # $$ 
+                    idx[file_name]=data.hash_obj(f.read())
+    def add_dir(dir_name):
+        for root, _, file_names in os.walk(dir_name):
+            for file_name in file_names:
+                path=os.path.relpath(file_name)
+                if is_ignored(path) or not os.path.isfile(path):
+                    continue
+                add_file(path)
+
+    with data.get_idx() as idx:
+        for entity_name in file_names:
+            if os.path.isfile(entity_name):
+                add_file(entity_name)
+            elif os.path.isdir(entity_name):
+                add_dir(entity_name)
+
+
 '''accessibility functions - START'''   
 # if .fend is in the path, then we don't show it in the output (don't show all contents of the central .fend folder)
 def is_ignored(path):
@@ -235,5 +265,8 @@ def _empty_current_directory():
             os.rmdir(path)
         except(FileNotFoundError, OSError):
             pass
+
+def is_related_to(alt, ref):
+    return ref in iter_alts_and_ancestors({alt})
 
 '''accessibility functions - END'''
