@@ -205,11 +205,36 @@ def show_alt(args):
     for path, action in diff.iter_changed_files(base.get_idx_conifer(), base.get_pwc()):
         print(f"\n {action:>12}:{path}\n")
       
+##4.
 def _changed(args):
-    conifer=args.alt and base.get_alt(args.alt).conifer
-    result=diff.diff_conf(base.get_conifer(conifer), base.get_pwc())
+    o_id=args.alt and base.get_oid(args.alt) # o_id will recieve the corresponding id after evaluation of the short circuit equation.
+    if args.alt:
+        conifer_from=base.get_conifer(o_id and base.get_conifer(o_id).conifer)
+
+    if args.cached:
+        conifer_to=base.get_pwc()
+        if args.alt:
+            conifer_from=base.get_idx_conifer()
+
+    res=diff.diff_conf(conifer_from, conifer_to)
     sys.stdout.flush()
-    sys.stdout.write(result)
+    sys.stdout.buffer.write(res)
+
+def _changed(args):
+    o_id=args.alt and base.get_oid(args.alt) # o_id will recieve the corresponding id after evaluation of the short-circuit equation.
+    
+    if args.alt:
+        conifer_from=base.get_conifer(o_id and base.get_conifer(o_id).conifer)
+
+    if args.cached:
+        conifer_to=base.get_pwc()
+        if not args.alt:
+            conifer_from=base.get_idx_conifer()
+
+    res=diff.diff_conf(conifer_from, conifer_to)
+    sys.stdout.flush()
+    sys.stdout.buffer.write(res)
+
 
 def _alt_printer(o_id, alt, refs=None):  #defaults to None to maintain compatibility with show_alt function                     
     refs_str=f'({", ".join(refs[o_id])})' if o_id in refs else ''
