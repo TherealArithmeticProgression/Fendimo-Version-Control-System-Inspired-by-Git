@@ -40,42 +40,55 @@ def iter_channels():
     for ref_name in data.iter_refs('refs/heads'):
         yield os.path.relpath(ref_name, 'refs/heads/')
 
-def make_conifer(directory='.'):
-    entries=[]
-    for entry in Path(directory).iterdir():
-        if is_ignored(entry):
-            continue
-        if entry.is_file() and not entry.is_symlink():
-            type_='blubber'
-            with open(entry, "rb") as file:
-                o_id=data.hash_obj(file.read())
-        elif entry.is_dir() and not entry.is_symlink():
-            type_='conifer'
-            oid=make_conifer(entry)
-        entries.append((type, o_id, entry.name))
-    tree=''.join((f"{type_} {o_id} {entry.name}") for type_, o_id, entry in sorted(entries))
-    return data.hash_obj(tree.encode(), 'tree')
+##4.
+def make_conifer():
+    idx_as_conifer={}
+    with data.get_idx() as idx:
+        for path, o_id in idx.items():
+            path=path.split('/')
+            dir_path, file_name = path[:-1], path[-1]
+            current=idx_as_conifer
+            for dir_name in dir_path:
+                current=current.setdefault(dir_name, [])
+            current[file_name]=o_id
 
-def get_conifer(o_id, base_path=""):
-    result={}
-    for type_,oid,name in iter_conifer(o_id):
-        if '/' in name or name in ('..','.'):
-            raise IncorrectInputError(f"Incorrect name of file {name}")
-        path=base_path+name 
-        if type_=='blubber':
-            result[path]=oid
-        elif type_=='conifer':
-            result.update(get_conifer(oid, base_path=f"{path}"))
-        else:
-            raise (f"Object of type {type_} not recognized.")
-    return result
+    def make_conifer_recursively(conif_dict):
+        entries={}
+        for name, value in conif_dict.items():
+            if type(value) is dict:
+                type_='conifer'
+                o_id=make_conifer_recursively(value)
+            else:
+                type_='blubber'
+                o_id = data.hash_obj(value)
+            entries.append((name, type_, o_id))
+        
+        conif=" ".join(f"{name} {o_id} {type_}\n" for name, o_id, type_ in sorted(entries))
+        return data.hash_obj(conif.encode(), 'conifer')
+    return make_conifer_recursively(idx_as_conifer)
 
-def read_conifer(conifer_oid):
+def get_conifer(conifer_oid,working_on_update=False):
+    with data.get_idx() as idx:
+        idx.clear()
+        idx.update(get_conifer,(conifer_oid))
+        if working_on_update:
+            _checkout_idx(idx)
+
+##2.
+def get_conifer_merged(c_base, c_head, c_other, working_on_update=False):
+    with data.get_idx() as idx:
+        idx.clear()
+        idx.update(diff.merge_conifs(get_conifer(c_base), get_conifer(c_head), get_conifer(c_other)))
+    if working_on_update:
+        _checkout_idx(idx)
+
+##2.
+def _checkout_idx(idx):
     _empty_current_directory()
-    for path, o_oid in get_conifer(o_id=conifer_oid, base_path='./').items():
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+    for path, o_id in idx.items():
+        os.makedirs(os.path.dirname(f'./{path}'), exists_ok=True)
         with open(path, 'wb') as f:
-            f.write(data.get_obj(o_oid))
+            f.write(data.get_obj(o_id, 'blubber'))
 
 ##3.
 def read_merged_conifers(c_base, c_head, c_other):
@@ -142,7 +155,8 @@ def get_pwc():
 def checkout(name):
     alt_id=get_oid(name)
     alt=get_alt(alt_id)
-    get_conifer(alt.conifer)
+    get_conifer(alt.conifer, working_on_update=True)
+
     if is_channel(name):
         HEAD=data.ref_val(symbolic=True, value=f"refs/heads/{name}")
     else:
@@ -178,14 +192,14 @@ def merge(other_id):
     if not a_other:
         raise IncorrectInputError(f"No alt with the ID {other_id[:10]}... recognized.")
     if merge_base==HEAD:
-        read_conifer(a_other.conifer)
+        get_conifer(a_other.conifer, working_on_update=True)
         data.set_ref('MERGE_HEAD', data.ref_val(symbolic=False, value=other_id))
         print("Fast-forward merge occured.")
         return 
     data.set_ref('MERGE_HEAD', data.ref_val(symbolic=False, value=other_id))
     a_base=get_alt(merge_base)
     a_head=get_alt(HEAD)
-    read_conifer(a_head.conifer, a_other.conifer)
+    get_conifer(a_head.conifer, a_base.conifer, a_other.conifer, working_on_update=True)
     print("Merged to present working conifer \n Make an alt to proceed safely.")
 
 # chronology lost in set, but retained in generator-type output of
@@ -251,6 +265,10 @@ def get_oid(name):
         return name #case when we have an o_id in our hands already, then that o_id doesn't have an o_id, and we return it as-is.
     else:
         assert IncorrectInputError(f"Name {name} encountered is unknown.")
+
+def get_idx_conifer():
+    with data.get_idx() as idx:
+        return idx
 
 def _empty_current_directory():
     current_dir=Path.cwd()

@@ -55,7 +55,7 @@ def diff_blubber(o_from, o_to, path='blubber'):
 def merge_conifs(c_head, c_other):
     merged={}
     for path, o_head, o_ther in comp_conifers(c_head, c_other):
-        merged[path]=merge_blubbers(o_head=o_head, o_ther=o_ther)
+        merged[path]=data.hash_obj(merge_blubbers(o_head=o_head, o_ther=o_ther))
     return merged
 
 def merge_blubbers(o_base, o_head, o_ther):

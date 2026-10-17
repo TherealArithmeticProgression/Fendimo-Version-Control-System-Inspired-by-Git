@@ -1,9 +1,9 @@
 # Glossary 
 ## retained nomenclature (unchanged)
 ---
-## checkout
-
 ## @
+
+## checkout
 
 ## master
 
@@ -27,19 +27,25 @@ nameit
 branch
 
 ## diff
-changed 
+changed
+
+## fetch
+go-get
 
 ## init
 make 
 
 ## show
-show-alt
-
-## status
 info
 
-## Tree
+## status
+show-alt
+
+## tree
 conifer
+
+## pwc
+(present working conifer)
 
 ## parent
 ancestor
@@ -50,10 +56,7 @@ fendimo C
 ## read-tree
 get_conifer
 
-## pwc
-(present working conifer)
-
-## fetch
-go-get
+## push
+put
 
 

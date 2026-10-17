@@ -2,10 +2,12 @@
 Module-level doc string
 This file (data.py) will initialize a folder 
 in the repository titled .fend, mimicking git's .git creation.
+
 """
 from contextlib import contextmanager
 import hashlib
 import os
+import json 
 import shutil #shutil is used for directory management tasks, such as moving/deleting/copying
 from collections import namedtuple
 
@@ -47,6 +49,21 @@ def get_obj(o_id, expected='blubber'):
     if expected is not None:
         assert type_==expected, f"Expected {expected}, got {type_} instead"
     return content
+
+def put_obj(o_id, remote_path):
+    '''
+    ## underlying code for pushing objects from local to remote source.
+    
+    Inputs:
+
+    - ```o_id``` is the object ID, to be pushed onto the remote source.
+    - ```remote_path``` is the path at which the output is directed to.
+
+    XXX Curtailed compatibility for Mac Device. 
+    '''
+    remote_path+='/.fend'
+    shutil.copy(f"{DIRECTORY}/objects/{o_id}", f"{remote_path}/objects/{o_id}")
+
 
 def set_ref(ref, alt_id, deref=True):
     
@@ -105,4 +122,18 @@ def fetch_obj_if_missing(o_id, remote_dir):
         return 
     remote_dir+='/.fend'
     shutil.copy(f"{remote_dir}/objects/{o_id}", f"{DIRECTORY}/objects/{o_id}")
- 
+
+##2.
+@contextmanager
+def get_idx():
+    idx={}
+    idx_f=f'{DIRECTORY}/idx'
+    if os.path.isfile(idx_f):
+        with open(idx_f) as f:
+            idx=json.load(f)
+
+    yield idx
+
+    with open(idx_f, 'w') as f:
+        json.dump(idx, f)
+

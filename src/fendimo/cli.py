@@ -191,17 +191,20 @@ def show_alt(args):
     HEAD=base.get_oid('@')
     channel=base.get_channel_name()
     if channel:
-        print(f"On channel {channel}")
+        print(f"\n On channel {channel}\n")
     else:
-        print(f"Head detached at {HEAD[:10]}")
-    MERGE_HEAD=base.get_alt('HEAD').value
+        print(f"\n Head detached at {HEAD[:10]}\n")
+    MERGE_HEAD=base.get_alt('MERGE_HEAD').value
     if MERGE_HEAD:
         print(f"Merging with {MERGE_HEAD[:10]}")
     print('\n Changes to be committed:\n')
     HEAD_tree=HEAD and base.get_alt(HEAD).name
-    for path, action in diff.iter_changed_files(base.get_tree(HEAD_tree), base.get_pwc()):
-        print(f"{action:>12}:{path}")
-
+    for path, action in diff.iter_changed_files(base.get_tree(HEAD_tree), base.get_idx_conifer()):
+        print(f"\n {action:>12}:{path}\n")
+    print("\n Code changes not staged in alt: \n")
+    for path, action in diff.iter_changed_files(base.get_idx_conifer(), base.get_pwc()):
+        print(f"\n {action:>12}:{path}\n")
+      
 def _changed(args):
     conifer=args.alt and base.get_alt(args.alt).conifer
     result=diff.diff_conf(base.get_conifer(conifer), base.get_pwc())
